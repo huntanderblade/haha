@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Для тебя</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: white;
+      font-family: monospace;
+      overflow: hidden;
+      user-select: none;
+    }
+    .centered {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      white-space: pre-wrap;
+    }
+    .hidden {
+      display: none;
+    }
+    .binary {
+      position: absolute;
+      color: red;
+      font-size: 14px;
+      animation: fall 4s linear forwards;
+      user-select: none;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    .heart-char {
+      position: absolute;
+      color: red;
+      font-size: 10px;
+      animation: heartAnim 4s ease-in-out forwards;
+    }
+    @keyframes heartAnim {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(4); opacity: 0; }
+    }
+    .neon {
+      animation: glow 1s infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 3px red; opacity: 1; }
+      to   { text-shadow: 0 0 10px red; opacity: 0.7; }
+    }
+    #dots::after {
+      content: '.';
+      animation: dots 1s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: '.'; }
+      25%  { content: '..'; }
+      50%  { content: '...'; }
+      75%  { content: '.'; }
+      100% { content: ''; }
+    }
+    .pixel-font {
+      font-family: monospace;
+      font-size: 18px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Шаг 0 -->
+<div id="start" class="centered">
+  на белый экран смотришь, да?<br>Можешь хоть поклацать для приличия
+</div>
+
+<!-- Шаг 1: Двоичный дождь -->
+<div id="binary-container"></div>
+
+<!-- Шаг 2: сердечко -->
+<div id="heart-container"></div>
+
+<!-- Шаг 3: кликни ещё -->
+<div id="click-more" class="centered hidden">
+  думаешь это всё?<br>Ну-ну, клацай давай
+</div>
+
+<!-- Шаг 4: благодарность -->
+<div id="thankyou" class="centered hidden pixel-font neon">
+  благодарю тебя за то что ты рядом,<br>
+  что проводишь эти дни со мной и даришь мне спокойствие.<br>
+  благодаря тебе я чувствую что меня понимают и уважают.<br>
+  я очень ценю тебя и наше общение.
+</div>
+
+<!-- Шаг 5: точки загрузки -->
+<div id="dots" class="centered hidden pixel-font"> </div>
+
+<!-- Шаг 6: это ещё не всё -->
+<div id="notyet" class="centered hidden pixel-font">это ещё не всё!</div>
+
+<!-- Шаг 7: ты пикми -->
+<div id="pikmi" class="centered hidden pixel-font">
+  <div style="font-size: 26px;">забыла сказать, самое важное</div><br>
+  <div style="font-size: 48px; color: crimson;">ты пикми</div>
+</div>
+
+<script>
+let step = 0;
+document.body.addEventListener('click', async () => {
+  if (step === 0) {
+    document.getElementById('start').classList.add('hidden');
+    const container = document.getElementById('binary-container');
+
+    for (let i = 0; i < 200; i++) {
+      const bin = document.createElement('div');
+      bin.className = 'binary';
+      bin.textContent = Math.random() > 0.5 ? '1' : '0';
+      bin.style.left = `${Math.random() * 100}vw`;
+      bin.style.top = `-20px`;
+      container.appendChild(bin);
+    }
+
+    // через 4 секунды - запускаем сердечко
+    setTimeout(() => {
+      const heart = document.getElementById('heart-container');
+      for (let i = 0; i < 60; i++) {
+        const angle = (i / 60) * 2 * Math.PI;
+        const x = 16 * Math.pow(Math.sin(angle), 3);
+        const y = -(
+          13 * Math.cos(angle) -
+          5 * Math.cos(2 * angle) -
+          2 * Math.cos(3 * angle) -
+          Math.cos(4 * angle)
+        );
+        const span = document.createElement('div');
+        span.className = 'heart-char';
+        span.textContent = '❤';
+        span.style.left = `${50 + x * 1.5}%`;
+        span.style.top = `${50 + y * 1.5}%`;
+        heart.appendChild(span);
+      }
+
+      setTimeout(() => {
+        heart.innerHTML = '';
+        document.getElementById('click-more').classList.remove('hidden');
+        step++;
+      }, 4000);
+    }, 4000);
+  }
+
+  else if (step === 1) {
+    document.getElementById('click-more').classList.add('hidden');
+    document.getElementById('thankyou').classList.remove('hidden');
+    step++;
+    setTimeout(() => {
+      document.getElementById('thankyou').classList.add('hidden');
+      document.getElementById('dots').classList.remove('hidden');
+      step++;
+      setTimeout(() => {
+        document.getElementById('dots').classList.add('hidden');
+        document.getElementById('notyet').classList.remove('hidden');
+        step++;
+        setTimeout(() => {
+          document.getElementById('notyet').classList.add('hidden');
+          document.getElementById('pikmi').classList.remove('hidden');
+        }, 2000);
+      }, 10000);
+    }, 15000);
+  }
+});
+</script>
+
+</body>
+</html>
