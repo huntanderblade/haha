@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>for you</title>
+  <title>Для тебя</title>
   <style>
     html, body {
       margin: 0;
@@ -27,13 +28,13 @@
     .binary {
       position: absolute;
       color: red;
-      font-size: 14px;
+      font-size: 16px;
       animation: fall 4s linear forwards;
       user-select: none;
     }
     @keyframes fall {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(100vh); opacity: 0; }
+      0% { transform: translateY(-100px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 1; }
     }
     .heart-char {
       position: absolute;
@@ -52,43 +53,36 @@
       from { text-shadow: 0 0 3px red; opacity: 1; }
       to   { text-shadow: 0 0 10px red; opacity: 0.7; }
     }
-    #dots::after {
-      content: '.';
-      animation: dots 1s steps(4, end) infinite;
-    }
-    @keyframes dots {
-      0%   { content: '.'; }
-      25%  { content: '..'; }
-      50%  { content: '...'; }
-      75%  { content: '.'; }
-      100% { content: ''; }
-    }
     .pixel-font {
       font-family: monospace;
       font-size: 18px;
       color: red;
     }
+    #dots::after {
+      content: '...';
+      animation: dots 1s steps(3, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: '.'; }
+      33%  { content: '..'; }
+      66%  { content: '...'; }
+      100% { content: ''; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Шаг 0 -->
 <div id="start" class="centered">
   на белый экран смотришь, да?<br>Можешь хоть поклацать для приличия
 </div>
 
-<!-- Шаг 1: Двоичный дождь -->
 <div id="binary-container"></div>
-
-<!-- Шаг 2: сердечко -->
 <div id="heart-container"></div>
 
-<!-- Шаг 3: кликни ещё -->
 <div id="click-more" class="centered hidden">
   думаешь это всё?<br>Ну-ну, клацай давай
 </div>
 
-<!-- Шаг 4: благодарность -->
 <div id="thankyou" class="centered hidden pixel-font neon">
   благодарю тебя за то что ты рядом,<br>
   что проводишь эти дни со мной и даришь мне спокойствие.<br>
@@ -96,13 +90,9 @@
   я очень ценю тебя и наше общение.
 </div>
 
-<!-- Шаг 5: точки загрузки -->
 <div id="dots" class="centered hidden pixel-font"> </div>
-
-<!-- Шаг 6: это ещё не всё -->
 <div id="notyet" class="centered hidden pixel-font">это ещё не всё!</div>
 
-<!-- Шаг 7: ты пикми -->
 <div id="pikmi" class="centered hidden pixel-font">
   <div style="font-size: 26px;">забыла сказать, самое важное</div><br>
   <div style="font-size: 48px; color: crimson;">ты пикми</div>
@@ -110,22 +100,30 @@
 
 <script>
 let step = 0;
-document.body.addEventListener('click', async () => {
+
+document.body.addEventListener('click', () => {
   if (step === 0) {
     document.getElementById('start').classList.add('hidden');
-    const container = document.getElementById('binary-container');
 
-    for (let i = 0; i < 200; i++) {
-      const bin = document.createElement('div');
-      bin.className = 'binary';
-      bin.textContent = Math.random() > 0.5 ? '1' : '0';
-      bin.style.left = `${Math.random() * 100}vw`;
-      bin.style.top = `-20px`;
-      container.appendChild(bin);
+    // Заполняем весь экран цифрами (8x20 сетка)
+    const container = document.getElementById('binary-container');
+    const cols = Math.floor(window.innerWidth / 16);
+    const rows = Math.floor(window.innerHeight / 16);
+
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const bin = document.createElement('div');
+        bin.className = 'binary';
+        bin.textContent = Math.random() > 0.5 ? '1' : '0';
+        bin.style.left = `${x * 16}px`;
+        bin.style.top = `${y * 16}px`;
+        container.appendChild(bin);
+      }
     }
 
-    // через 4 секунды - запускаем сердечко
+    // Через 4 секунды: сердце
     setTimeout(() => {
+      document.getElementById('binary-container').innerHTML = '';
       const heart = document.getElementById('heart-container');
       for (let i = 0; i < 60; i++) {
         const angle = (i / 60) * 2 * Math.PI;
@@ -143,16 +141,13 @@ document.body.addEventListener('click', async () => {
         span.style.top = `${50 + y * 1.5}%`;
         heart.appendChild(span);
       }
-
       setTimeout(() => {
         heart.innerHTML = '';
         document.getElementById('click-more').classList.remove('hidden');
         step++;
       }, 4000);
     }, 4000);
-  }
-
-  else if (step === 1) {
+  } else if (step === 1) {
     document.getElementById('click-more').classList.add('hidden');
     document.getElementById('thankyou').classList.remove('hidden');
     step++;
